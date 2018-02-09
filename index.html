@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Blockchain</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!--     Fonts and icons     -->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+    <!-- Material Kit CSS -->
+    <link rel="stylesheet" href="/assets/css/material-kit.css">
+
+    <!-- Animate.CSS -->
+    <link rel="stylesheet" href="/assets/css/animate.css">
+
+    <!--   Core JS Files   -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/bootstrap-material-design.js"></script>
+    <script src="/assets/momentjs/moment.js"></script>
+
+    <!-- Blockchain JS -->
+    <script src="/blockchain/sha256.js"></script>
+    <script src="/blockchain/Block.js"></script>
+    <script src="/blockchain/Blockchain.js"></script>
+
+    <!-- Plugin for the Datepicker, full documentation here: https://github.com/Eonasdan/bootstrap-datetimepicker -->
+    <script src="/assets/js/plugins/bootstrap-datetimepicker.min.js"></script>
+
+    <!-- Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+    <script src="/assets/js/plugins/nouislider.min.js"></script>
+
+    <!-- Material Kit Core initialisations of plugins and Bootstrap Material Design Library -->
+    <script src="/assets/js/material-kit.js?v=2.0.0"></script>
+
+    <!-- P5 Library -->
+    <script src="libraries/p5.js"></script>
+    <script src="libraries/matter.js"></script>
+    <script src="libraries/p5.dom.js"></script>
+    <script src="libraries/p5.sound.js"></script>
+    <script src="Particle.js"></script>
+    <script src="sketch.js"></script>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script>
+      var blockchain = new Blockchain();
+      window.onload = function() {
+      document.getElementById("genData").innerHTML = blockchain.blockchain[0].data;
+      document.getElementById("genPHash").innerHTML = blockchain.blockchain[0].previousHash;
+      document.getElementById("genHash").innerHTML = blockchain.blockchain[0].hash;
+      document.getElementById("genNonce").innerHTML = blockchain.blockchain[0].nonce;
+      document.getElementById("genTime").innerHTML = blockchain.blockchain[0].timestamp;
+      var blockNumber = 1;
+      var addButton = document.getElementById("add_activity");
+      var tracklistTable = document.getElementById("tracklist");
+      addButton.onclick = function() {
+          var data = document.getElementById("inputData").value;
+          document.getElementById("inputData").value = "";
+          var block = blockchain.mine(data);
+          var anime = document.getElementsByClassName("animated");
+          for(var i = 0; i < anime.length; ++i) {
+            if ( anime[i].classList.contains('animated') )
+              anime[i].classList.remove('animated');
+          }
+          anime = document.getElementsByClassName("lightSpeedIn");
+          for(var i = 0; i < anime.length; ++i) {
+            if ( anime[i].classList.contains('lightSpeedIn') )
+              anime[i].classList.remove('lightSpeedIn');
+          }
+          tracklistTable.innerHTML += `
+              <div class="animated lightSpeedIn">
+              <div class="card card-nav-tabs">
+              <div class="card-header card-header-info" style="font-size:20px;">
+                ${"Block Number " + blockNumber}
+              </div>
+              <div class="card-body">
+              <div class="input-group">
+                <span class="input-group-addon">
+                  <i class="material-icons">message</i>
+                </span>
+                <p type="text" class="form-control" placeholder="Block Data goes here" style="font-size:20px;">${block.data}</p>
+              </div>
+                <span class="input-group-addon" style="margin-top:10px;">
+                <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Previous Hash</span> <p style="margin-top:10px;text-indent: 10px;">${block.previousHash}</p>
+                </span>
+                <span class="input-group-addon"</span>
+                  <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Time</span><p style="margin-top:10px;text-indent: 10px;">${block.timestamp}</p>
+                </span>
+                <span class="input-group-addon"</span>
+                  <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Nonce</span><p style="margin-top:10px;text-indent: 10px;">${block.nonce}</p>
+                </span>
+                <span class="input-group-addon"</span>
+                  <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Hash</span><p style="margin-top:10px;text-indent: 10px;">${block.hash}</p>
+                </span>
+              </div>
+              </div>
+              </div>`;
+      blockNumber += 1;
+      }
+    }
+    </script>
+    <link rel="icon" type="image/png" href="/assets/img/icon.png"/>
+    <style>
+    canvas {
+			position: fixed;
+      left:0;
+      top:0;
+      z-index:-1;
+		}
+    </style>
+  </head>
+  <body style="background:white;">
+    <h1 class="sticky" style="text-align:center;font-size:50px;">Blockchain</h1>
+    <hr><br>
+    <div id="tracklist" style="width:760px; margin:0 auto; padding:0;">
+      <div class="animated slideInDown">
+      <div class="card card-nav-tabs">
+        <div class="card-header card-header-warning" style="font-size:20px;">
+          Genesis Block
+        </div>
+        <div class="card-body">
+          <div class="input-group">
+            <span class="input-group-addon">
+              <i class="material-icons">message</i>
+            </span>
+            <p id="genData" type="text" class="form-control" placeholder="Block Data goes here" style="font-size:20px;"></p>
+          </div>
+          <span class="input-group-addon" style="margin-top:10px;">
+              <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Previous Hash</span> <p id="genPHash" style="margin-top:10px;text-indent: 10px;">Previous Hash</p>
+          </span>
+          <span class="input-group-addon"</span>
+            <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Time</span><p id="genTime" style="margin-top:10px;text-indent: 10px;">Time</p>
+          </span>
+          <span class="input-group-addon"</span>
+            <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Nonce</span><p id="genNonce" style="margin-top:10px;text-indent: 10px;">Nonce</p>
+          </span>
+          <span class="input-group-addon"</span>
+            <span class="badge badge-success" style="padding:10px;width:160px;font-size:14px;">Hash</span><p id="genHash" style="margin-top:10px;text-indent: 10px;">Hash</p>
+          </span>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="animated slideInUp">
+        <div class="card card-nav-tabs text-center" style="width:700px; margin:50px auto; padding:0;">
+          <div class="card-header card-header-primary" style="font-size:20px;">
+          Add New Block
+          </div>
+          <div class="card-body">
+              <div class="input-group">
+                  <span class="input-group-addon">
+                    <i class="material-icons">message</i>
+                  </span>
+                  <input id="inputData" type="text" class="form-control" placeholder="Enter data to mine">
+                </div>
+            <a href="#bot" class="btn btn-primary" id="add_activity" style="font-size:14px;">Add</a>
+          </div>
+        </div>
+    </div>
+    <a name="bot"></a>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6 copyright">
+                    <p>
+                        Copyright &copy; 2017 Himanshu Gautam
+                    </p>
+                </div>
+                <div class="col-sm-6">
+                    <ul>
+                        <li>
+                            <a href="https://github.com/hgautam2010" target="_blank"><i class="fa fa-github" aria-hidden="true"></i></a>
+                        </li>
+                        <li>
+                            <a href="https://stackoverflow.com/users/6855579/himanshu-kumar-gautam?tab=profile" target="_blank"><i class="fa fa-stack-overflow" aria-hidden="true"></i></a>
+                        </li>
+                        <li>
+                            <a href="https://www.facebook.com/hgautam2010" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                        </li>
+                        <li>
+                            <a href="https://twitter.com/hgautam2010" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                        </li>
+                        <li>
+                            <a href="https://plus.google.com/hgautam2010" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+  </body>
+</html>
