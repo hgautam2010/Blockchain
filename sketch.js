@@ -1,7 +1,8 @@
 var p = [];
+var canvas;
 function setup()
 {
-	createCanvas(windowWidth, windowHeight);
+	canvas = createCanvas(windowWidth, windowHeight);
 	background(255);
 	total = 30;
 	for(let i = 0; i < total; i++)
@@ -23,4 +24,12 @@ function draw()
 		}
 		p[i].display();
 	}
+}
+
+window.onresize = function() {
+	var w = window.innerWidth;
+	var h = window.innerHeight;
+	canvas.size(w,h);
+  width = w;
+  height = h;
 }
